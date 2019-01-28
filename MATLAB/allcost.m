@@ -1,7 +1,7 @@
 function [J, grad, p] = allcost(theta, X, Y, lambda, tshapes)
 
 % convert shapes?
-if nargin > 4 && isa(theta, 'double') && iscell(tshapes)
+if nargin > 4 && (isa(theta, 'double') || isa(theta, 'single') || isa(theta, 'gpuArray')) && iscell(tshapes)
     ot = theta;
     theta = cell(numel(tshapes), 1);
     ti = 1;
