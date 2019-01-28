@@ -18,7 +18,7 @@ end
 
 % for each t compute gradient
 tt = t;
-g = 2 .^ max(-20, ceil(log2(abs(t) + eps)) - 10);
+g = 2 .^ max(-16, ceil(log2(abs(t) + eps)) - 10);
 tg = t - g;
 tu = t + g;
 for tc = 1:numel(t)
