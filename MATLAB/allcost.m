@@ -1,4 +1,4 @@
-function [J, grad] = allcost(theta, X, Y, lambda, tshapes)
+function [J, grad, p] = allcost(theta, X, Y, lambda, tshapes)
 
 % convert shapes?
 if nargin > 4 && isa(theta, 'double') && iscell(tshapes)
@@ -14,7 +14,9 @@ elseif isa(theta, 'double')
 end
 
 % easier with Y transposed
-Y = Y';
+if size(theta{end}, 1) == size(Y, 2)
+    Y = Y';
+end
 
 % number of samples (scaling)
 m = size(Y, 2);
@@ -24,8 +26,13 @@ Xt = cell(numel(theta)+1, 1);
 d = cell(size(Xt));
 grad = cell(size(theta));
 
-% transpose X
-Xt{1} = X';
+% transpose X if necessary
+if ~any((size(X, 1) + [0, 1]) == size(theta{1}, 2)) && ...
+    any((size(X, 2) + [0, 1]) == size(theta{1}, 2))
+    Xt{1} = X';
+else
+    Xt{1} = X;
+end
 
 % theta squared sum
 tss = 0;
@@ -60,7 +67,7 @@ d{end} = p - Y;
 
 % compute cost function
 J = (-1 / m) * sum(sum(Y .* log(p) + (1 - Y) .* log(1 - p))) + ...
-    0.5 * tss;
+    (0.5 / m) * tss;
 
 % done?
 if nargout < 2
@@ -74,21 +81,15 @@ for tc = numel(theta):-1:1
         d{tc}(1, :) = [];
     end
     g = (1 / m) .* (d{tc + 1} * Xt{tc}');
+    if ~iscell(lambda)
+        l = ((1 / m) .* lambda) .* ones(size(theta{tc}));
+    else
+        l = (1 / m) .* lambda{tc};
+    end
+    l(:, 1) = 0;
     if isequal(size(g), size(theta{tc}))
-        if ~iscell(lambda)
-            l = lambda .* ones(size(theta{tc}));
-        else
-            l = lambda{tc};
-        end
-        l(:, 1) = 0;
         grad{tc} = g + l .* theta{tc};
     else
-        if ~iscell(lambda)
-            l = lambda .* ones(size(theta{tc}));
-        else
-            l = lambda{tc};
-        end
-        l(:, 1) = 0;
         grad{tc} = g(2:end, :) + l .* theta{tc};
     end
 end
@@ -99,4 +100,10 @@ if nargin > 4 && iscell(tshapes)
         grad{tc} = grad{tc}(:);
     end
     grad = cat(1, grad{:});
+end
+
+% predictions?
+if nargout > 2
+    [~, p] = max(p, [], 1);
+    p = p(:);
 end
