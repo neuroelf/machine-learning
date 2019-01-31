@@ -1,4 +1,4 @@
-function [t, ts, cs] = gdesc(f, opts, t, varargin)
+function [t, cs] = gdesc(f, opts, t, varargin)
 
 % options
 if nargin < 3 || ~isa(f, 'function_handle') || ~isa(t, 'double') || isempty(t)
@@ -23,15 +23,14 @@ end
 % compute initial cost
 funchasgrad = false;
 try
-    [c0, cg] = f(t, varargin{:});
-    tg = fgrad(f, t, varargin{:});
-    if isequal(size(cg), size(t)) && sum(abs(tg(:) - cg(:))) < (sqrt(eps) * numel(t))
+    [c0, tg] = f(t, varargin{:});
+    if isequal(size(tg), size(t))
         funchasgrad = true;
     end
 catch
 end
 seps = 4 * eps;
-ts = NaN .* zeros(maxiter, numel(t));
+
 cs = NaN .* zeros(maxiter, 1);
 
 % keep iterating
@@ -40,7 +39,6 @@ while it <= maxiter
     
     % update t
     t = t - l * tg;
-    ts(it, :) = t;
     
     % compute new cost
     if funchasgrad
