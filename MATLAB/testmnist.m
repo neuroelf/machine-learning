@@ -7,8 +7,8 @@ options = optimset('GradObj', 'on', 'MaxIter', 100);
 lambda = 0.1;
 
 % load training and testing datasets
-[Xtrnt, ytrn] = readmnist('train-images-idx3-ubyte', 'train-labels-idx1-ubyte');
-[Xtstt, ytst] = readmnist('t10k-images-idx3-ubyte', 't10k-labels-idx1-ubyte');
+[Xtrnt, ytrn] = readmnist('train-images.idx3-ubyte', 'train-labels.idx1-ubyte');
+[Xtstt, ytst] = readmnist('t10k-images.idx3-ubyte', 't10k-labels.idx1-ubyte');
 ytrn(ytrn == 0) = 10;
 ytst(ytst == 0) = 10;
 
